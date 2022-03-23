@@ -71,3 +71,38 @@ func (c *AuthorController) GetAuthorByID(writer http.ResponseWriter, request *ht
 
 	_, err = writer.Write(resp)
 }
+
+func (c *AuthorController) UpdateAuthor(writer http.ResponseWriter, request *http.Request) {
+	var author authors.Author
+
+	err := json.NewDecoder(request.Body).Decode(&author)
+
+	if err != nil {
+		log.Print(err)
+	}
+
+	updatedAuthor, err := c.service.UpdateAuthor(&author)
+
+	if err != nil {
+		log.Print(err)
+	}
+
+	resp, _ := json.Marshal(updatedAuthor)
+
+	_, err = writer.Write(resp)
+}
+
+func (c *AuthorController) DeleteAuthor(writer http.ResponseWriter, request *http.Request) {
+	vars := mux.Vars(request)
+	id, err := strconv.Atoi(vars["id"])
+
+	if err != nil {
+		log.Print(err)
+	}
+
+	err = c.service.DeleteAuthor(id)
+
+	if err != nil {
+		log.Print(err)
+	}
+}

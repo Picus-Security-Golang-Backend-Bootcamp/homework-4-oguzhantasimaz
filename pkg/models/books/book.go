@@ -18,7 +18,7 @@ type Book struct {
 	PageCount  int
 	Price      float64
 	IsDeleted  bool
-	AuthorID   int
+	AuthorID   int            `gorm:"foreignkey:AuthorID"`
 	Author     authors.Author `gorm:"references:ID"`
 }
 

@@ -37,6 +37,9 @@ func (b *bookRepository) GetAllBooks() ([]*books.Book, error) {
 // GetBookByID returns a book by id
 func (b *bookRepository) GetBookByID(id int) (*books.Book, error) {
 	book := new(books.Book)
+	if book.IsDeleted == true {
+		return nil, errors.New("You cannot update deleted book")
+	}
 	err := b.db.Where("id = ?", id).First(book).Error
 	return book, err
 }

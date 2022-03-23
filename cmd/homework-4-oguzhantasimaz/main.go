@@ -6,13 +6,14 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	"time"
 
 	"github.com/Picus-Security-Golang-Backend-Bootcamp/homework-4-oguzhantasimaz/cmd/homework-4-oguzhantasimaz/controllers"
 	infrastructure "github.com/Picus-Security-Golang-Backend-Bootcamp/homework-4-oguzhantasimaz/pkg/infrastructure/repositories"
 	"github.com/Picus-Security-Golang-Backend-Bootcamp/homework-4-oguzhantasimaz/pkg/infrastructure/repositories/author"
 	"github.com/Picus-Security-Golang-Backend-Bootcamp/homework-4-oguzhantasimaz/pkg/infrastructure/repositories/book"
+	"github.com/Picus-Security-Golang-Backend-Bootcamp/homework-4-oguzhantasimaz/pkg/middlewares/authentication"
+	"github.com/Picus-Security-Golang-Backend-Bootcamp/homework-4-oguzhantasimaz/pkg/middlewares/logging"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
@@ -26,8 +27,8 @@ func main() {
 
 	CORSOptions()
 	// tüm response'ları sıkıştırmak için
-	r.Use(loggingMiddleware)
-	r.Use(authenticationMiddleware)
+	r.Use(authentication.Middleware)
+	r.Use(logging.Middleware)
 
 	bookRepo := book.NewBookRepository(db)
 	authorRepo := author.NewAuthorRepository(db)
@@ -40,19 +41,14 @@ func main() {
 	authorCtrl := controllers.NewAuthorController(authorRepo)
 
 	b := r.PathPrefix("/books").Subrouter()
-	// "/products/{name}/"
 	b.HandleFunc("/", bookCtrl.GetAllBooks).Methods("GET")
-	// "/products/{id:[0-9]+}"
-	b.HandleFunc("/{id:[0-9]+}", bookCtrl.GetBookByID).Methods("GET")
+	b.HandleFunc("/", bookCtrl.CreateBook).Methods("POST")
+	b.HandleFunc("/id/{id:[0-9]+}", bookCtrl.GetBookByID).Methods("GET")
+	b.HandleFunc("/title/{title}", bookCtrl.GetBookByTitle).Methods("GET")
 
 	a := r.PathPrefix("/authors").Subrouter()
 	a.HandleFunc("/", authorCtrl.CreateAuthor).Methods("POST")
-	a.HandleFunc("/{id:[0-9]+}", authorCtrl.GetAuthorByID).Methods("GET")
-
-	// r.HandleFunc("/products/{name}", ProductNameHandler).
-	// 	Methods("GET").
-	// 	Schemes("http")
-	// r.HandleFunc("/products/{id:[0-9]+}", ProductIdHandler)
+	a.HandleFunc("/id/{id:[0-9]+}", authorCtrl.GetAuthorByID).Methods("GET")
 
 	srv := &http.Server{
 		Addr:         "0.0.0.0:8090",
@@ -98,30 +94,4 @@ func ShutdownServer(srv *http.Server, timeout time.Duration) {
 	// to finalize based on context cancellation.
 	log.Println("shutting down")
 	os.Exit(0)
-}
-
-func loggingMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Do stuff here
-		log.Println(r.URL.Query())
-		// Call the next handler, which can be another middleware in the chain, or the final handler.
-		next.ServeHTTP(w, r)
-	})
-}
-
-func authenticationMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Do stuff here
-		token := r.Header.Get("Authorization")
-		if strings.HasPrefix(r.URL.Path, "/books") {
-			if token != "" {
-				next.ServeHTTP(w, r)
-			} else {
-				http.Error(w, "Token not found", http.StatusUnauthorized)
-			}
-		} else {
-			next.ServeHTTP(w, r)
-		}
-
-	})
 }
