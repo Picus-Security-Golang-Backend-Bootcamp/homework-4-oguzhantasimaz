@@ -43,12 +43,17 @@ func main() {
 	b := r.PathPrefix("/books").Subrouter()
 	b.HandleFunc("/", bookCtrl.GetAllBooks).Methods("GET")
 	b.HandleFunc("/", bookCtrl.CreateBook).Methods("POST")
-	b.HandleFunc("/id/{id:[0-9]+}", bookCtrl.GetBookByID).Methods("GET")
+	b.HandleFunc("/", bookCtrl.UpdateBook).Methods("PUT")
+	b.HandleFunc("/{id:[0-9]+}", bookCtrl.DeleteBook).Methods("DELETE")
+	b.HandleFunc("/{id:[0-9]+}", bookCtrl.GetBookByID).Methods("GET")
 	b.HandleFunc("/title/{title}", bookCtrl.GetBookByTitle).Methods("GET")
 
 	a := r.PathPrefix("/authors").Subrouter()
+	a.HandleFunc("/", authorCtrl.GetAllAuthors).Methods("GET")
 	a.HandleFunc("/", authorCtrl.CreateAuthor).Methods("POST")
-	a.HandleFunc("/id/{id:[0-9]+}", authorCtrl.GetAuthorByID).Methods("GET")
+	a.HandleFunc("/", authorCtrl.UpdateAuthor).Methods("PUT")
+	a.HandleFunc("/{id:[0-9]+}", authorCtrl.DeleteAuthor).Methods("DELETE")
+	a.HandleFunc("/{id:[0-9]+}", authorCtrl.GetAuthorByID).Methods("GET")
 
 	srv := &http.Server{
 		Addr:         "0.0.0.0:8090",
