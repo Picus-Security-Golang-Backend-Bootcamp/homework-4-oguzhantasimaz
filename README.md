@@ -1,7 +1,10 @@
+# Details
+To see the project endpoint layout or to test it please check  `postman_collection.json`
+
 ## Steps
 
 ### Clone the project
-`git clone https://github.com/Picus-Security-Golang-Backend-Bootcamp/homework-2-oguzhantasimaz.git`
+`git clone https://github.com/Picus-Security-Golang-Backend-Bootcamp/homework-4-oguzhantasimaz.git`
 
 ### To run the project
 Change directory into project folder
@@ -16,7 +19,9 @@ If you get "Permission denied" error just type this to terminal / command-line
 
 #### If sh script doesn`t work
 Change directory to
-`cd /cmd/homework-3-oguzhantasimaz`
+`cd /cmd/homework-4-oguzhantasimaz`
 
 ##### Start the program by typing
 `go run .`
+
+

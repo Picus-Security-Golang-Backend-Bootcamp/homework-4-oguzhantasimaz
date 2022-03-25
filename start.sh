@@ -1,2 +1,2 @@
-cd cmd/homework-3-oguzhantasimaz/
+cd cmd/homework-4-oguzhantasimaz/
 go run .
