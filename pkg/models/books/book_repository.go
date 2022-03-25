@@ -1,5 +1,6 @@
 package books
 
+// BookRepository interface to define methods for book repository
 type BookRepository interface {
 	Migration()
 	InsertSampleData()

@@ -1,5 +1,6 @@
 package authors
 
+// AuthorRepository interface to define methods for author repository
 type AuthorRepository interface {
 	Migration()
 	InsertSampleData()

@@ -2,6 +2,7 @@ package validation
 
 import "errors"
 
+//Book errors
 var (
 	ErrInvalidID         = errors.New("ID must be greater than 0")
 	ErrInvalidCount      = errors.New("Count must be greater than 0")

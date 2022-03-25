@@ -11,16 +11,19 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// AuthorController struct
 type AuthorController struct {
 	service service.AuthorService
 }
 
+// CreateAuthorController function to create author controller
 func CreateAuthorController(repository authors.AuthorRepository) *AuthorController {
 	return &AuthorController{
 		service: *service.CreateAuthorService(repository),
 	}
 }
 
+// GetAllAuthors function to get all authors from application layer
 func (c *AuthorController) GetAllAuthors(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	authors, err := c.service.GetAllAuthors()
@@ -42,6 +45,7 @@ func (c *AuthorController) GetAllAuthors(w http.ResponseWriter, r *http.Request)
 	}
 }
 
+// CreateAuthor function to create author in application layer
 func (c *AuthorController) CreateAuthor(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	request := new(service.CreateAuthorRequest)
@@ -65,6 +69,7 @@ func (c *AuthorController) CreateAuthor(w http.ResponseWriter, r *http.Request) 
 	w.Write([]byte("Author created successfully"))
 }
 
+// GetAuthorByID function to get author by id from application layer
 func (c *AuthorController) GetAuthorByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
@@ -95,6 +100,7 @@ func (c *AuthorController) GetAuthorByID(w http.ResponseWriter, r *http.Request)
 	}
 }
 
+// UpdateAuthor function to update author in application layer
 func (c *AuthorController) UpdateAuthor(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	request := new(service.UpdateAuthorRequest)
@@ -116,6 +122,7 @@ func (c *AuthorController) UpdateAuthor(w http.ResponseWriter, r *http.Request) 
 	w.Write([]byte("Author updated successfully"))
 }
 
+// DeleteAuthor function to delete author in application layer
 func (c *AuthorController) DeleteAuthor(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	request := new(service.DeleteAuthorRequest)

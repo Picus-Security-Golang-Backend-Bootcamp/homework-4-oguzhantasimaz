@@ -11,20 +11,19 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// BookController struct
 type BookController struct {
 	service service.BookService
 }
 
-type ApiResponse struct {
-	Data interface{} `json:"data"`
-}
-
+// CreateBookController function to create BookController
 func CreateBookController(repository books.BookRepository) *BookController {
 	return &BookController{
 		service: *service.CreateBookService(repository),
 	}
 }
 
+// GetAllBooks function to get all books from application layer
 func (c *BookController) GetAllBooks(w http.ResponseWriter, r *http.Request) {
 	books, err := c.service.GetAllBooks()
 
@@ -46,6 +45,7 @@ func (c *BookController) GetAllBooks(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GetBookByID function to get book by id from application layer
 func (c *BookController) GetBookByID(w http.ResponseWriter, r *http.Request) {
 	request := new(service.GetBookByIDRequest)
 	vars := mux.Vars(r)
@@ -77,6 +77,7 @@ func (c *BookController) GetBookByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GetBookByTitle function to get book by title from application layer
 func (c *BookController) GetBookByTitle(w http.ResponseWriter, r *http.Request) {
 	request := new(service.GetBookByTitleRequest)
 	vars := mux.Vars(r)
@@ -103,6 +104,7 @@ func (c *BookController) GetBookByTitle(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
+// CreateBook function to create book in application layer
 func (c *BookController) CreateBook(w http.ResponseWriter, r *http.Request) {
 	request := new(service.CreateBookRequest)
 	err := json.NewDecoder(r.Body).Decode(&request)
@@ -122,6 +124,7 @@ func (c *BookController) CreateBook(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Book created successfully"))
 }
 
+// UpdateBook function to update book in application layer
 func (c *BookController) UpdateBook(w http.ResponseWriter, r *http.Request) {
 	request := new(service.UpdateBookRequest)
 	err := json.NewDecoder(r.Body).Decode(&request)
@@ -140,6 +143,7 @@ func (c *BookController) UpdateBook(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Book updated successfully"))
 }
 
+// DeleteBook function to delete book in application layer
 func (c *BookController) DeleteBook(w http.ResponseWriter, r *http.Request) {
 	request := new(service.DeleteBookRequest)
 	vars := mux.Vars(r)
@@ -160,6 +164,7 @@ func (c *BookController) DeleteBook(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Book deleted successfully"))
 }
 
+// BuyBook function to buy book in application layer
 func (c *BookController) BuyBook(w http.ResponseWriter, r *http.Request) {
 	request := new(service.BuyBookRequest)
 	err := json.NewDecoder(r.Body).Decode(&request)

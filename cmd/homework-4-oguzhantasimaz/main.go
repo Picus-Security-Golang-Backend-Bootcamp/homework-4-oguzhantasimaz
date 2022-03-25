@@ -21,8 +21,11 @@ import (
 
 func main() {
 	r := mux.NewRouter()
+	//Set environment variables
 	os.Setenv("DB_USERNAME", "root")
 	os.Setenv("DB_PASSWORD", "Ot123456")
+
+	//Get environment variables
 	username := os.Getenv("DB_USERNAME")
 	password := os.Getenv("DB_PASSWORD")
 	// db, err := infrastructure.NewMySQLDB("root:Ot123456@tcp(127.0.0.1:3306)/homework3?charset=utf8mb4&parseTime=True&loc=Local")
@@ -30,22 +33,30 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-
+	// Cors Options
 	CORSOptions()
-	// tüm response'ları sıkıştırmak için
+
+	// Initialize middlewares
 	r.Use(authentication.Middleware)
 	r.Use(logging.Middleware)
 
+	// Initialize repositories
 	bookRepo := book.NewBookRepository(db)
 	authorRepo := author.CreateAuthorRepository(db)
+
+	//Migrate database
 	authorRepo.Migration()
 	bookRepo.Migration()
+
+	//Insert sample data
 	authorRepo.InsertSampleData()
 	bookRepo.InsertSampleData()
 
+	//Initialize controllers
 	bookCtrl := controllers.CreateBookController(bookRepo)
 	authorCtrl := controllers.CreateAuthorController(authorRepo)
 
+	//Book Routes
 	b := r.PathPrefix("/books").Subrouter()
 	b.HandleFunc("", bookCtrl.GetAllBooks).Methods("GET")
 	b.HandleFunc("", bookCtrl.CreateBook).Methods("POST")
@@ -55,6 +66,7 @@ func main() {
 	b.HandleFunc("/buy", bookCtrl.BuyBook).Methods("POST")
 	b.HandleFunc("/title/{title}", bookCtrl.GetBookByTitle).Methods("GET")
 
+	//Author Routes
 	a := r.PathPrefix("/authors").Subrouter()
 	a.HandleFunc("", authorCtrl.GetAllAuthors).Methods("GET")
 	a.HandleFunc("", authorCtrl.CreateAuthor).Methods("POST")
@@ -62,6 +74,7 @@ func main() {
 	a.HandleFunc("/{id:[0-9]+}", authorCtrl.DeleteAuthor).Methods("DELETE")
 	a.HandleFunc("/{id:[0-9]+}", authorCtrl.GetAuthorByID).Methods("GET")
 
+	//Server Configuration
 	srv := &http.Server{
 		Addr:         "0.0.0.0:8090",
 		WriteTimeout: time.Second * 15,
@@ -78,6 +91,7 @@ func main() {
 		}
 	}()
 
+	// Graceful Shutdown
 	ShutdownServer(srv, time.Second*10)
 }
 

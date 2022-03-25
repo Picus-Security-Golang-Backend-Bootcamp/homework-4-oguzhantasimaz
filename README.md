@@ -1,6 +1,16 @@
 # Details
 To see the project endpoint layout or to test it please check  `postman_collection.json`
 
+## Project Structure
+
+```mermaid
+sequenceDiagram
+HTTP Request ->> Controllers:
+Controllers->>Application Layer
+Application Layer->> Models
+Models->> Repository
+```
+
 ## Steps
 
 ### Clone the project
