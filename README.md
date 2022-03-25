@@ -3,12 +3,17 @@ To see the project endpoint layout or to test it please check  `postman_collecti
 
 ## Project Structure
 
+### Example Sequence Diagram For 
 ```mermaid
 sequenceDiagram
-HTTP Request ->> Controllers:
-Controllers->>Application Layer
-Application Layer->> Models
-Models->> Repository
+HTTP ->> Controller Layer: Information
+Controller Layer ->> Application Layer: Passes data according to protocols
+Application Layer ->> Models: Starts the communication with 
+Models->> Repository: Applies Business Logic 
+Repository ->> Models: Gives Raw Data
+Models ->> Application Layer: Here is data with the way you want
+Application Layer ->> Controller Layer: Pass the data
+Controller Layer ->> HTTP: Here is the data you wanted
 ```
 
 ## Steps
