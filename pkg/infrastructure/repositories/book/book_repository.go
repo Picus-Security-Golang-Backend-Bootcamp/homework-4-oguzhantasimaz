@@ -1,13 +1,9 @@
 package book
 
 import (
-	"errors"
-
 	authors "github.com/Picus-Security-Golang-Backend-Bootcamp/homework-4-oguzhantasimaz/pkg/models/authors"
 	books "github.com/Picus-Security-Golang-Backend-Bootcamp/homework-4-oguzhantasimaz/pkg/models/books"
 	"gorm.io/gorm"
-
-	log "github.com/sirupsen/logrus"
 )
 
 type bookRepository struct {
@@ -37,9 +33,6 @@ func (b *bookRepository) GetAllBooks() ([]*books.Book, error) {
 // GetBookByID returns a book by id
 func (b *bookRepository) GetBookByID(id int) (*books.Book, error) {
 	book := new(books.Book)
-	if book.IsDeleted == true {
-		return nil, errors.New("You cannot update deleted book")
-	}
 	err := b.db.Where("id = ?", id).First(book).Error
 	return book, err
 }
@@ -47,41 +40,30 @@ func (b *bookRepository) GetBookByID(id int) (*books.Book, error) {
 // GetBookByTitle returns a book by title
 func (b *bookRepository) GetBookByTitle(title string) (*books.Book, error) {
 	book := new(books.Book)
-	//parameter title includes wildcard character '%'
 	err := b.db.Where("title LIKE ?", "%"+title+"%").First(book).Error
 	return book, err
 }
 
 // CreateBook creates a new book
-func (b *bookRepository) CreateBook(book *books.Book) (*books.Book, error) {
+func (b *bookRepository) CreateBook(book *books.Book) error {
 	err := b.db.Create(book).Error
-	return book, err
+	return err
 }
 
 // UpdateBook updates a book
-func (b *bookRepository) UpdateBook(book *books.Book) (*books.Book, error) {
-	//control if book deleted
-	if book.IsDeleted == true {
-		return nil, errors.New("You cannot update deleted book")
-	}
+func (b *bookRepository) UpdateBook(book *books.Book) error {
 	err := b.db.Save(book).Error
-	return book, err
+	return err
 }
 
 // DeleteBook soft deletes a book
 func (b *bookRepository) DeleteBook(id int) error {
-	//update book isDeleted field to true
 	book, err := b.GetBookByID(id)
 	if err != nil {
 		return err
 	}
-	//control if book deleted
-	if book.IsDeleted == true {
-		return errors.New("book already deleted")
-	}
-
 	book.IsDeleted = true
-	book, err = b.UpdateBook(book)
+	err = b.UpdateBook(book)
 	if err != nil {
 		return err
 	}
@@ -89,24 +71,12 @@ func (b *bookRepository) DeleteBook(id int) error {
 }
 
 // BuyBook updates a book stock count
-func (b *bookRepository) BuyBook(id int, count int) (*books.Book, error) {
-	book, err := b.GetBookByID(id)
+func (b *bookRepository) BuyBook(book *books.Book) error {
+	err := b.UpdateBook(book)
 	if err != nil {
-		return nil, err
+		return err
 	}
-
-	if book.IsDeleted == true {
-		return nil, errors.New("You cannot buy deleted book")
-	}
-	if book.StockCount < count {
-		log.Fatal("Not enough stock")
-	}
-	book.StockCount -= count
-	book, err = b.UpdateBook(book)
-	if err != nil {
-		return nil, err
-	}
-	return book, err
+	return err
 }
 
 // InsertSampleData inserts sample data of books

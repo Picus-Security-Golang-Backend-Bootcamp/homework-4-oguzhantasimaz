@@ -20,7 +20,12 @@ import (
 
 func main() {
 	r := mux.NewRouter()
-	db, err := infrastructure.NewMySQLDB("root:Ot123456@tcp(127.0.0.1:3306)/homework3?charset=utf8mb4&parseTime=True&loc=Local")
+	os.Setenv("DB_USERNAME", "root")
+	os.Setenv("DB_PASSWORD", "Ot123456")
+	username := os.Getenv("DB_USERNAME")
+	password := os.Getenv("DB_PASSWORD")
+	// db, err := infrastructure.NewMySQLDB("root:Ot123456@tcp(127.0.0.1:3306)/homework3?charset=utf8mb4&parseTime=True&loc=Local")
+	db, err := infrastructure.NewMySQLDB(username + ":" + password + "@tcp(127.0.0.1:3306)/homework3?charset=utf8mb4&parseTime=True&loc=Local")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -31,27 +36,28 @@ func main() {
 	r.Use(logging.Middleware)
 
 	bookRepo := book.NewBookRepository(db)
-	authorRepo := author.NewAuthorRepository(db)
+	authorRepo := author.CreateAuthorRepository(db)
 	authorRepo.Migration()
 	bookRepo.Migration()
 	authorRepo.InsertSampleData()
 	bookRepo.InsertSampleData()
 
-	bookCtrl := controllers.NewBookController(bookRepo)
-	authorCtrl := controllers.NewAuthorController(authorRepo)
+	bookCtrl := controllers.CreateBookController(bookRepo)
+	authorCtrl := controllers.CreateAuthorController(authorRepo)
 
 	b := r.PathPrefix("/books").Subrouter()
-	b.HandleFunc("/", bookCtrl.GetAllBooks).Methods("GET")
-	b.HandleFunc("/", bookCtrl.CreateBook).Methods("POST")
-	b.HandleFunc("/", bookCtrl.UpdateBook).Methods("PUT")
+	b.HandleFunc("", bookCtrl.GetAllBooks).Methods("GET")
+	b.HandleFunc("", bookCtrl.CreateBook).Methods("POST")
+	b.HandleFunc("", bookCtrl.UpdateBook).Methods("PUT")
 	b.HandleFunc("/{id:[0-9]+}", bookCtrl.DeleteBook).Methods("DELETE")
 	b.HandleFunc("/{id:[0-9]+}", bookCtrl.GetBookByID).Methods("GET")
+	b.HandleFunc("/buy", bookCtrl.BuyBook).Methods("POST")
 	b.HandleFunc("/title/{title}", bookCtrl.GetBookByTitle).Methods("GET")
 
 	a := r.PathPrefix("/authors").Subrouter()
-	a.HandleFunc("/", authorCtrl.GetAllAuthors).Methods("GET")
-	a.HandleFunc("/", authorCtrl.CreateAuthor).Methods("POST")
-	a.HandleFunc("/", authorCtrl.UpdateAuthor).Methods("PUT")
+	a.HandleFunc("", authorCtrl.GetAllAuthors).Methods("GET")
+	a.HandleFunc("", authorCtrl.CreateAuthor).Methods("POST")
+	a.HandleFunc("", authorCtrl.UpdateAuthor).Methods("PUT")
 	a.HandleFunc("/{id:[0-9]+}", authorCtrl.DeleteAuthor).Methods("DELETE")
 	a.HandleFunc("/{id:[0-9]+}", authorCtrl.GetAuthorByID).Methods("GET")
 

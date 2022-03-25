@@ -9,8 +9,8 @@ type authorRepository struct {
 	db *gorm.DB
 }
 
-// NewAuthorRepository creates a new author repository
-func NewAuthorRepository(db *gorm.DB) authors.AuthorRepository {
+// CreateAuthorRepository creates a new author repository
+func CreateAuthorRepository(db *gorm.DB) authors.AuthorRepository {
 	return &authorRepository{
 		db: db,
 	}
@@ -37,21 +37,21 @@ func (a *authorRepository) GetAuthorByID(id int) (*authors.Author, error) {
 }
 
 // CreateAuthor creates a new author
-func (a *authorRepository) CreateAuthor(author *authors.Author) (*authors.Author, error) {
+func (a *authorRepository) CreateAuthor(author *authors.Author) error {
 	err := a.db.Create(author).Error
-	return author, err
+	return err
 }
 
 // UpdateAuthor updates a author
-func (a *authorRepository) UpdateAuthor(author *authors.Author) (*authors.Author, error) {
+func (a *authorRepository) UpdateAuthor(author *authors.Author) error {
 	err := a.db.Save(author).Error
-	return author, err
+	return err
 }
 
 // DeleteAuthor deletes a author
 func (a *authorRepository) DeleteAuthor(id int) (err error) {
 	err = a.db.Where("id = ?", id).Delete(&authors.Author{}).Error
-	return
+	return err
 }
 
 // GetAuthorByName returns a author by name

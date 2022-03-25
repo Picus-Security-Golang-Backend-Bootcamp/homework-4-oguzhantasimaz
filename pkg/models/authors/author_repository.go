@@ -5,7 +5,7 @@ type AuthorRepository interface {
 	InsertSampleData()
 	GetAllAuthors() ([]*Author, error)
 	GetAuthorByID(id int) (*Author, error)
-	CreateAuthor(author *Author) (*Author, error)
-	UpdateAuthor(author *Author) (*Author, error)
+	CreateAuthor(author *Author) error
+	UpdateAuthor(author *Author) error
 	DeleteAuthor(id int) error
 }

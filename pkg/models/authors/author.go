@@ -1,6 +1,8 @@
 package authors
 
 import (
+	"time"
+
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -8,16 +10,17 @@ import (
 // Author represents an author
 type Author struct {
 	gorm.Model
-	ID      int
-	Name    string
-	Surname string
+	ID        int
+	Name      string
+	Surname   string
+	CreatedAt time.Time `gorm:"<-:create"`
 }
 
 func (b *Author) Print() {
 	log.Infof("\nAuthor:\n %s | %s", b.Name, b.Surname)
 }
 
-func NewAuthor(r AuthorRepository, author *Author) (*Author, error) {
+func CreateAuthor(r AuthorRepository, author *Author) error {
 	return r.CreateAuthor(author)
 }
 
@@ -29,7 +32,7 @@ func GetAuthorByID(r AuthorRepository, id int) (*Author, error) {
 	return r.GetAuthorByID(id)
 }
 
-func UpdateAuthor(r AuthorRepository, author *Author) (*Author, error) {
+func UpdateAuthor(r AuthorRepository, author *Author) error {
 	return r.UpdateAuthor(author)
 }
 

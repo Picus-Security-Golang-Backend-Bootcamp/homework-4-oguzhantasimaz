@@ -24,7 +24,7 @@ func NewMySQLDB(conString string) (*gorm.DB, error) {
 	db, err := gorm.Open(mysql.Open(conString), &gorm.Config{
 		PrepareStmt: true, // sonraki sorgular için cache
 		NowFunc: func() time.Time {
-			return time.Now().UTC()
+			return time.Now()
 		},
 	})
 

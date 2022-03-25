@@ -7,102 +7,134 @@ import (
 	"strconv"
 
 	"github.com/Picus-Security-Golang-Backend-Bootcamp/homework-4-oguzhantasimaz/pkg/models/authors"
-	"github.com/Picus-Security-Golang-Backend-Bootcamp/homework-4-oguzhantasimaz/pkg/services"
+	service "github.com/Picus-Security-Golang-Backend-Bootcamp/homework-4-oguzhantasimaz/pkg/services/author"
 	"github.com/gorilla/mux"
 )
 
 type AuthorController struct {
-	service services.AuthorService
+	service service.AuthorService
 }
 
-func NewAuthorController(repository authors.AuthorRepository) *AuthorController {
+func CreateAuthorController(repository authors.AuthorRepository) *AuthorController {
 	return &AuthorController{
-		service: *services.NewAuthorService(repository),
+		service: *service.CreateAuthorService(repository),
 	}
 }
 
-func (c *AuthorController) GetAllAuthors(writer http.ResponseWriter, request *http.Request) {
+func (c *AuthorController) GetAllAuthors(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	authors, err := c.service.GetAllAuthors()
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	resp, _ := json.Marshal(authors)
 
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(resp)
+
 	if err != nil {
 		log.Print(err)
+		return
 	}
-
-	_, err = writer.Write(resp)
 }
 
-func (c *AuthorController) CreateAuthor(writer http.ResponseWriter, request *http.Request) {
-	var author authors.Author
+func (c *AuthorController) CreateAuthor(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	request := new(service.CreateAuthorRequest)
 
-	err := json.NewDecoder(request.Body).Decode(&author)
-
-	if err != nil {
-		log.Print(err)
-	}
-
-	newAuthor, err := c.service.CreateAuthor(&author)
+	err := json.NewDecoder(r.Body).Decode(&request)
 
 	if err != nil {
-		log.Print(err)
+		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
-	resp, _ := json.Marshal(newAuthor)
+	err = c.service.CreateAuthor(request)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
-	_, err = writer.Write(resp)
+	w.WriteHeader(http.StatusCreated)
+	w.Write([]byte("Author created successfully"))
 }
 
-func (c *AuthorController) GetAuthorByID(writer http.ResponseWriter, request *http.Request) {
-	vars := mux.Vars(request)
+func (c *AuthorController) GetAuthorByID(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	request := new(service.GetAuthorByIdRequest)
+	request.Id = id
+	author, err := c.service.GetAuthorByID(request)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	resp, err := json.Marshal(author)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(resp)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+}
+
+func (c *AuthorController) UpdateAuthor(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	request := new(service.UpdateAuthorRequest)
+	err := json.NewDecoder(r.Body).Decode(&request)
+
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = c.service.UpdateAuthor(request)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Author updated successfully"))
+}
+
+func (c *AuthorController) DeleteAuthor(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	request := new(service.DeleteAuthorRequest)
+	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 
 	if err != nil {
-		log.Print(err)
+		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
-	author, err := c.service.GetAuthorByID(id)
-
+	request.ID = id
+	err = c.service.DeleteAuthor(request)
 	if err != nil {
-		log.Print(err)
+		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
-
-	resp, _ := json.Marshal(author)
-
-	_, err = writer.Write(resp)
-}
-
-func (c *AuthorController) UpdateAuthor(writer http.ResponseWriter, request *http.Request) {
-	var author authors.Author
-
-	err := json.NewDecoder(request.Body).Decode(&author)
-
-	if err != nil {
-		log.Print(err)
-	}
-
-	updatedAuthor, err := c.service.UpdateAuthor(&author)
-
-	if err != nil {
-		log.Print(err)
-	}
-
-	resp, _ := json.Marshal(updatedAuthor)
-
-	_, err = writer.Write(resp)
-}
-
-func (c *AuthorController) DeleteAuthor(writer http.ResponseWriter, request *http.Request) {
-	vars := mux.Vars(request)
-	id, err := strconv.Atoi(vars["id"])
-
-	if err != nil {
-		log.Print(err)
-	}
-
-	err = c.service.DeleteAuthor(id)
-
-	if err != nil {
-		log.Print(err)
-	}
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Author deleted successfully"))
 }
